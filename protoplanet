@@ -44,6 +44,7 @@ def copy_inputs(dir):
 
 def replace_params(the_file,key,val):
     """This function replaces the specified parameters in the copied strings"""
+    
     for i in range( len(filenames) ):
         if filenames[i] == the_file+'.in':
             for line in contents[i]:
