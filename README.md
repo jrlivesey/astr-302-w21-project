@@ -15,4 +15,4 @@ Suppose you want to copy a ```VPLanet``` simulation, hosted in a directory calle
 ./protoplanet -d dir -p b:dInc=90 c:dEcc=0.1
 ```
 
-One may alter as many parameters as they want using ```protoplanet```, but beyond a certain point it might actually be quicker to manually copy the directory and alter the input files.
+One may alter as many parameters as they want using ```protoplanet```, but beyond a certain point it might actually be quicker to manually copy the directory and alter the input files. For issues regarding units of physical quantities in ```VPLanet```, run the command ```vplanet -h``` from the command line to read the documentation.
