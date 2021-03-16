@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+
+#####################################################
+# PROTOPLANET is a simple Python code for quickly   #
+# making new VPLANET input directories from pre-    #
+# existing ones. Run PROTOPLANET from a directory   #
+# containing .in files (sun.in, b.in, vpl.in, etc.) #
+# and a new directory with your specified changes   #
+# will appear in the parent directory. The new      #
+# simulation can be run instantly by navigating to  #
+# the new directory and using the command           #
+# 'vplanet vpl.in', as per usual.                   #
+#                                                   #
+# Expected usage:                                   #
+#   ./protoplanet -d dir -p b:dInc=90 c:dEcc=0.1    #
+#                                                   #
+# Joseph R. Livesey, 2021                           #
+#####################################################
+
+
+import os
+import sys
+import argparse
+
+
+filenames = []
+contents = []
+new_contents = []
+
+
+def copy_inputs(dir):
+    """This function copies the input files from an existing dir"""
+
+    os.chdir(dir)
+    for file in os.listdir(dir):
+        if file.endswith('.in') == True:
+            filenames.append( os.path.basename(file) )
+            f = open(file, 'r')
+            lines = [line.strip().split() for line in f.readlines()]
+            contents.append(lines)
+            f.close()
+    os.chdir( os.path.join(dir,'..') )
+
+
+def replace_params(the_file,key,val):
+    """This function replaces the specified parameters in the copied strings"""
+    for i in range( len(filenames) ):
+        if filenames[i] == the_file+'.in':
+            for line in contents[i]:
+                if line:
+                    if line[0] == key:
+                        line[1] = val
+
+
+def create_dir(new_dir):
+    """This function writes all the new input files in their own directory"""
+
+    os.mkdir(new_dir)
+    os.chdir(new_dir)
+
+    for content in contents:
+        new_content = [' '.join(line) for line in content]
+        new_content = '\n'.join(new_content)
+        new_contents.append(new_content)
+
+    for i in range( len(filenames) ):
+        new_file = os.path.join(new_dir, filenames[i])
+        n = open(new_file, 'w')
+        n.write(new_contents[i])
+        n.close()
+
+
+# Parsing command line arguments
+parser = argparse.ArgumentParser(description="Making a new VPLanet input dir by copying and re-writing an existing one")
+parser.add_argument('-d', '--dir', type=str, help="Specify directory to modify/copy")
+parser.add_argument('-p', '--planet', nargs='+', type=str, help="Specify changes to input files: filename, option, and then new value (type 'vplanet -h' for units)")
+args = parser.parse_args()
+
+path = os.getcwd()
+dirname = args.dir
+
+
+# Executing functions using user-specified parameters and values
+copy_inputs(os.path.join(path,dirname))
+
+for arg in args.planet:
+    file, opts = arg.split(':')
+    key, val = opts.split('=')
+    replace_params(file,key,val)
+
+create_dir(os.path.join(path,dirname+'_new'))
