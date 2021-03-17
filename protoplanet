@@ -44,7 +44,11 @@ def copy_inputs(dir):
 
 def replace_params(the_file,key,val):
     """This function replaces the specified parameters in the copied strings"""
-    
+
+    if the_file+'.in' not in filenames:
+        print("ERROR: The file to be modified does not exist.")
+        exit(0)
+
     for i in range( len(filenames) ):
         if filenames[i] == the_file+'.in':
             for line in contents[i]:
@@ -73,12 +77,21 @@ def create_dir(new_dir):
 
 # Parsing command line arguments
 parser = argparse.ArgumentParser(description="Making a new VPLanet input dir by copying and re-writing an existing one")
-parser.add_argument('-d', '--dir', type=str, help="Specify directory to modify/copy")
-parser.add_argument('-p', '--planet', nargs='+', type=str, help="Specify changes to input files: filename, option, and then new value (type 'vplanet -h' for units)")
+parser.add_argument('-d', '--dir', type=str, default=None, help="Specify directory to modify/copy")
+parser.add_argument('-p', '--planet', nargs='+', type=str, default=None, help="Specify changes to input files: filename, option, and then new value. Format: file:option=value")
 args = parser.parse_args()
 
 path = os.getcwd()
 dirname = args.dir
+
+
+try:
+    os.chdir(os.path.join(path,dirname))
+except OSError as err:
+    print("ERROR: {}. The specified directory does not exist.".format(err))
+    print("")
+    print("Usage: {} -d <target dir> -p <arg1> <arg2> ...".format(sys.argv[0]))
+    exit(0)
 
 
 # Executing functions using user-specified parameters and values
